@@ -23,7 +23,19 @@ class Agent(nn.Module):
         learn_every = Config.LEARN_EVERY, 
         device=Config.DEVICE, 
         seed=Config.SEED):
-
+        """
+            Params
+            ======
+            state_dim: state dimension
+            action_dim: action dimension
+            network_architecture: Q network architecture
+            eps_start: epsilon start
+            eps_decay: epsilon decay
+            eps_end: epsilon min
+            gamma: discount rate
+            tau: update target network
+            learn_every: num step for sampling and learning from buffer
+        """
         super(Agent, self).__init__()
         self.state_dim = state_dim
         self.action_dim = action_dim
@@ -48,11 +60,8 @@ class Agent(nn.Module):
     def update_epsilon(self):
         self.epsilon = max(self.epsilon * self.eps_decay, self.eps_end)
 
-    def set_epsilon_for_inference(self, eps=None):
-        if eps is None:
-            self.epsilon = self.eps_end
-        else:
-            self.epsilon = eps
+    def set_epsilon_for_inference(self, eps=Config.EPSILON_FOR_INFER):
+        self.epsilon = eps
 
     def act(self, state):
         state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
@@ -68,16 +77,16 @@ class Agent(nn.Module):
     
     def learn(self, experiences):
         states, actions, rewards, next_states, dones = experiences
-        # # select best actions of next_states from primary network
-        # best_acts = self.primary_network(next_states).argmax(dim=-1).unsqueeze(1)
-        # # gather best value of corresponding actions from target network and calculate true value (estimate)
-        # q_target_output = self.target_network(next_states).gather(1, best_acts)
-        # true_value_est = rewards + self.gamma * (q_target_output) * (1-dones)
+        # select best actions of next_states from primary network
+        best_acts = self.primary_network(next_states).argmax(dim=-1).unsqueeze(1)
+        # gather best value of corresponding actions from target network and calculate true value (estimate)
+        q_target_output = self.target_network(next_states).gather(1, best_acts)
+        true_value_est = rewards + self.gamma * (q_target_output) * (1-dones)
 
-        # Get max predicted Q values (for next states) from target model
-        Q_targets_next = self.target_network(next_states).detach().max(1)[0].unsqueeze(1)
-        # Compute Q targets for current states 
-        true_value_est = rewards + (self.gamma * Q_targets_next * (1 - dones))
+        # # Get max predicted Q values (for next states) from target model
+        # Q_targets_next = self.target_network(next_states).detach().max(1)[0].unsqueeze(1)
+        # # Compute Q targets for current states 
+        # true_value_est = rewards + (self.gamma * Q_targets_next * (1 - dones))
 
         q_est = self.primary_network(states).gather(1, actions)
         

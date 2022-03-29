@@ -5,6 +5,13 @@ import torch.nn.functional as F
 
 class QNetwork(nn.Module):
     def __init__(self, state_dim, action_dim, network_acrchitecture, seed):
+        """
+        Params
+            ======
+            state_dim: state dimension
+            action_dim: action dimension
+            network_architecture: Q network architecture
+        """
         super(QNetwork, self).__init__()
         torch.manual_seed(seed)
         network_acrchitecture = [state_dim] + network_acrchitecture + [action_dim]
