@@ -83,18 +83,13 @@ class Agent(nn.Module):
         q_target_output = self.target_network(next_states).gather(1, best_acts)
         true_value_est = rewards + self.gamma * (q_target_output) * (1-dones)
 
-        # # Get max predicted Q values (for next states) from target model
-        # Q_targets_next = self.target_network(next_states).detach().max(1)[0].unsqueeze(1)
-        # # Compute Q targets for current states 
-        # true_value_est = rewards + (self.gamma * Q_targets_next * (1 - dones))
-
         q_est = self.primary_network(states).gather(1, actions)
         
         loss = F.mse_loss(true_value_est, q_est)
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
-
+        # soft update the target network with tau
         self.soft_update()
 
     def soft_update(self):

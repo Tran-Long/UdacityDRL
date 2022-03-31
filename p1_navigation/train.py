@@ -71,4 +71,4 @@ if __name__ == "__main__":
 
     my_agent = Agent()
     scores = dqn(my_agent, env, brain_name)
-    scores_plot(scores)
+    scores_plot(scores, True)

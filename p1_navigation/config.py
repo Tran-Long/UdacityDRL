@@ -22,7 +22,7 @@ class Config:
     DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     NUM_EPISODE = 5000                      # num of trAaining episodes
-    NUM_EPiSODE_INFER = 100                 # num of inferencing episodes
+    NUM_EPiSODE_INFER = 10                  # num of inferencing episodes
     MAX_TIMESTEP = 300                      # max timestep for each episode
 
     CHECKPOINT = "checkpoint.pth"           # checkpoint path of trained weight
